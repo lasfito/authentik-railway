@@ -2,7 +2,7 @@ FROM ghcr.io/goauthentik/server:latest
 
 USER root
 
-ADD services/authentik-server/prerun.sh /tmp/prerun.sh
+ADD prerun.sh /tmp/prerun.sh
 
 RUN /bin/sh /tmp/prerun.sh
 
