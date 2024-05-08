@@ -1,6 +1,6 @@
 FROM ghcr.io/goauthentik/server:2024.4.2
 
-ADD services/authentik-server/prerun.sh /tmp/prerun.sh
+ADD prerun.sh /tmp/prerun.sh
 
 
 RUN /bin/sh /tmp/prerun.sh
