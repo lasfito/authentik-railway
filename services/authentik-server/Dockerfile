@@ -1,4 +1,4 @@
-FROM ghcr.io/goauthentik/server:2024.4.2
+FROM ghcr.io/goauthentik/server:latest
 
 ADD prerun.sh /tmp/prerun.sh
 
