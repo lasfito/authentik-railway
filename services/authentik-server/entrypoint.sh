@@ -18,13 +18,17 @@ cat > /web/dist/custom.css <<EOF
     max-width: 100%;
 }
 
-.pf-c-list pf-m-inline  {
+* {
+    color: black !important;
+}
+
+.pf-c-login__footer .pf-c-list.pf-m-inline  {
 display:none
 }
 
 
-.pf-c-login__main-header pf-c-brand ak-brand { 
-    display: none;
+.pf-c-login__main-header.pf-c-brand.ak-brand img { 
+    display: none !important;
 }
 
 .pf-c-background-image  {
@@ -41,12 +45,17 @@ display:none
 }
 
 
-.pf-c-title {
-    visibility: hidden;
+.pf-c-login__main-header {
+    position: relative;
 }
 
-.pf-c-title:after {
-    content:'goodbye'; 
+.pf-c-login__main-header .pf-c-title {
+    visibility: hidden;
+    position: relative;
+}
+
+.pf-c-login__main-header .pf-c-title:after {
+    content:'ログイン'; 
     visibility: visible;
     display: block;
     position: absolute;
@@ -57,6 +66,10 @@ display:none
 .pf-c-form-control {
     background: white;
     color: black;
+}
+
+img.pf-c-brand {
+    content: url("https://play-lh.googleusercontent.com/2i_54HKrZmwFonPZLI5PRb2q6XG0KFh5cGYUnQNEFhWObg3j0ha5rI1eZxszmBIywgE") !important;
 }
 EOF
 
