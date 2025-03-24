@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:16.2-alpine3.19
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${PG_USER:-authentik}
+      POSTGRES_PASSWORD: ${PG_PASS:-authentik}
+      POSTGRES_DB: ${PG_DB:-authentik}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${PG_USER:-authentik}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2.4-bookworm
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  authentik-server:
+    build: ./services/authentik-server
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: ${PG_USER:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: ${PG_DB:-authentik}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_SECRET_KEY: ${SECRET_KEY:-changeme}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: 'false'
+      OVERRIDE_ACCENT_COLOUR: ${ACCENT_COLOR:-#f4810b}
+      OVERRIDE_LINK_COLOUR:
+        ${LINK_COLOR:-#f4810b}
+        # Added default admin credentials
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${ADMIN_PASSWORD:-password}
+      AUTHENTIK_BOOTSTRAP_TOKEN: ${BOOTSTRAP_TOKEN:-your-super-secret-token}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${ADMIN_EMAIL:-admin@localhost}
+    ports:
+      - '9000:9000'
+      - '9443:9443'
+    volumes:
+      - authentik_media:/media
+      - authentik_custom_templates:/templates
+
+  authentik-worker:
+    build: ./services/authentik-worker
+    depends_on:
+      - authentik-server
+    environment:
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: ${PG_USER:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: ${PG_DB:-authentik}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_SECRET_KEY: ${SECRET_KEY:-changeme}
+      AUTHENTIK_ERROR_REPORTING__ENABLED:
+        'false'
+        # Added default admin credentials
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${ADMIN_PASSWORD:-password}
+      AUTHENTIK_BOOTSTRAP_TOKEN: ${BOOTSTRAP_TOKEN:-your-super-secret-token}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${ADMIN_EMAIL:-admin@localhost}
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5050:80'
+    volumes:
+      - ./pgadmin-servers.json:/pgadmin4/servers.json
+    depends_on:
+      - postgresql
+
+volumes:
+  postgres_data:
+  redis_data:
+  authentik_media:
+  authentik_custom_templates:

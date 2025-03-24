@@ -1,0 +1,14 @@
+{
+	"Servers": {
+		"1": {
+			"Name": "Authentik DB",
+			"Group": "Servers",
+			"Host": "postgresql",
+			"Port": 5432,
+			"MaintenanceDB": "authentik",
+			"Username": "authentik",
+			"Password": "authentik",
+			"SSLMode": "prefer"
+		}
+	}
+}
